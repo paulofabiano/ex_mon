@@ -1,12 +1,17 @@
 defmodule ExMon.Game.Status do
-  alias ExMon.Game
-
-  def print_round_message() do
-    game_info = Game.info()
-
-    IO.puts("The game is #{game_info.status}")
+  def print_round_message(%{status: :started} = info) do
+    IO.puts("The game is #{info.status}")
   end
 
+  def print_round_message(%{status: :continue, turn: player}) do
+    IO.puts("It is the #{player} turn.")
+  end
+
+  def print_round_message(%{status: :game_over}) do
+    IO.puts("The game is over")
+  end
+
+  @spec print_wrong_move_message(any) :: :ok
   def print_wrong_move_message(move) do
     IO.puts("#{move} is an invalid move")
   end

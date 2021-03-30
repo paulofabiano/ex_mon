@@ -3,6 +3,7 @@ defmodule ExMon do
   alias ExMon.Game.{Actions, Status}
 
   @computer_name "Robotinick"
+  @computer_moves [:avg, :rnd, :heal]
 
   def create_player(name, move_avg, move_rnd, move_heal) do
     Player.build(name, move_rnd, move_avg, move_heal)
@@ -17,9 +18,19 @@ defmodule ExMon do
   end
 
   def make_move(move) do
+    Game.info()
+    |> Map.get(:status)
+    |> handle_status(move)
+  end
+
+  def handle_status(:game_over, _), do: Status.print_round_message(Game.info())
+
+  def handle_status(_, move) do
     move
     |> Actions.fetch_move()
     |> do_move()
+
+    computer_move(Game.info())
   end
 
   defp do_move({:error, move}), do: Status.print_wrong_move_message(move)
@@ -32,4 +43,11 @@ defmodule ExMon do
 
     Status.print_round_message(Game.info())
   end
+
+  defp computer_move(%{turn: :computer, status: :continue}) do
+    move = {:ok, Enum.random(@computer_moves)}
+    do_move(move)
+  end
+
+  defp computer_move(_), do: :ok
 end
